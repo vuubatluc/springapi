@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: e-commerce
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/e_commerce_project
+    username: root
+    password: Minhvu147@
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
