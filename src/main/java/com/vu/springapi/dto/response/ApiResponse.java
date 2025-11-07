@@ -1,13 +1,16 @@
 package com.vu.springapi.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiRespone<T> {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ApiResponse<T> {
+    @Builder.Default
     private int code = 1000;
     private String message;
     private T result;

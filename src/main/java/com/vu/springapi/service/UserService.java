@@ -2,55 +2,81 @@ package com.vu.springapi.service;
 
 import com.vu.springapi.dto.request.UserCreateRequest;
 import com.vu.springapi.dto.request.UserUpdateRequest;
+import com.vu.springapi.dto.response.UserResponse;
+import com.vu.springapi.enums.Role;
 import com.vu.springapi.exception.AppException;
 import com.vu.springapi.exception.ErrorCode;
+import com.vu.springapi.mapper.UserMapper;
 import com.vu.springapi.model.User;
 import com.vu.springapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public User createUser(UserCreateRequest request){
+    public UserResponse createUser(UserCreateRequest request){
         if(userRepository.existsByEmail(request.getEmail())) throw new AppException(ErrorCode.EMAIL_EXIST);
         if(userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.USERNAME_EXIST);
 
-        User user = new User();
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        user.setDob(request.getDob());
-        user.setName(request.getName());
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setEmail(request.getEmail());
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        user.setRoles(roles);
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    public List<User> getUsers(){
-        return userRepository.findAll();
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getUsers(){
+        log.info("In method get Users");
+        return userRepository.findAll().stream()
+                .map(userMapper::toUserResponse)
+                .toList();
     }
 
-    public User getUser(Long id){
-        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    @PostAuthorize("returnObject.username == authentication.name")
+    public UserResponse getUser(Long id){
+        log.info("In method get user by id");
+        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    public User updateUser(Long id, UserUpdateRequest userUpdateRequest){
-        User user = getUser(id);
+    public UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest){
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setName(userUpdateRequest.getName());
-        user.setPassword(userUpdateRequest.getPassword());
-        user.setEmail(userUpdateRequest.getEmail());
-        user.setDob(userUpdateRequest.getDob());
+        userMapper.updateUser(user, userUpdateRequest);
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
 
-        return userRepository.save(user);
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    public UserResponse getMyInfo(){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return userMapper.toUserResponse(user);
     }
 
     public void deleteUser(Long id){
+        User user = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
         userRepository.deleteById(id);
     }
 }
