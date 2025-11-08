@@ -31,7 +31,7 @@ public class ApplicationInitConfig {
                         .name("Administrator")
                         .email("admin@example.com")
                         .password(passwordEncoder.encode("admin"))
-                        .roles(roles)
+                        //.roles(roles)
                         .dob(LocalDate.of(1990, 1, 1))
                         .build();
                 userRepository.save(user);

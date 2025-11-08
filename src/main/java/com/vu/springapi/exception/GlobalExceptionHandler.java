@@ -3,6 +3,7 @@ package com.vu.springapi.exception;
 import com.vu.springapi.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,6 +54,14 @@ public class GlobalExceptionHandler {
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = HttpMediaTypeNotSupportedException.class)
+    ResponseEntity<ApiResponse> handlingHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception){
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(1015);
+        apiResponse.setMessage("Content-Type not supported. Please use 'application/json'");
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 }
 
