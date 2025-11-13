@@ -11,6 +11,7 @@ import com.vu.springapi.model.Role;
 import com.vu.springapi.repository.PermissionRepository;
 import com.vu.springapi.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -23,6 +24,7 @@ public class RoleService {
     private final RoleMapper roleMapper;
     private final PermissionRepository permissionRepository;
 
+    @PreAuthorize("hasRole('ADMIN')")
     public RoleResponse create(RoleRequest request){
         Role role = roleMapper.toRole(request);
         var permissions = permissionRepository.findAllById(request.getPermissions());
@@ -32,11 +34,13 @@ public class RoleService {
         return roleMapper.toRoleResponse(role);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<RoleResponse> getAll(){
         var roles = roleRepository.findAll();
         return roles.stream().map(roleMapper::toRoleResponse).toList();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(String role){
         roleRepository.deleteById(role);
     }

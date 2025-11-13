@@ -1,7 +1,10 @@
 package com.vu.springapi.config;
 
-import com.vu.springapi.enums.Role;
+import com.vu.springapi.model.Permission;
+import com.vu.springapi.model.Role;
 import com.vu.springapi.model.User;
+import com.vu.springapi.repository.PermissionRepository;
+import com.vu.springapi.repository.RoleRepository;
 import com.vu.springapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,17 +25,36 @@ public class ApplicationInitConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    protected ApplicationRunner applicationRunner(UserRepository userRepository){
+    protected ApplicationRunner applicationRunner(UserRepository userRepository, PermissionRepository permissionRepository, RoleRepository roleRepository){
         return args -> {
             if(userRepository.findByUsername("admin").isEmpty()){
-                var roles = new HashSet<String>();
-                roles.add(Role.ADMIN.name());
+                Set<Permission> permissions = new HashSet<>();
+                Permission permission = new Permission("UPDATE DATA", "Update data permission");
+                permissions.add(permission);
+                permissionRepository.save(permission);
+
+
+                Set<Role> roles = new HashSet<>();
+                Role role = new Role("ADMIN", "Administrator", permissions);
+                roleRepository.save(role);
+                roles.add(role);
+
+                Set<Permission> permissionsUser = new HashSet<>();
+                Permission permissionUser = new Permission("ADD_TO_CART", "Add item into cart");
+                permissionsUser.add(permissionUser);
+                permissionRepository.save(permissionUser);
+
+
+                Set<Role> rolesUser = new HashSet<>();
+                Role roleUser = new Role("USER", "Customer", permissionsUser);
+                roleRepository.save(roleUser);
+
                 User user = User.builder()
                         .username("admin")
                         .name("Administrator")
                         .email("admin@example.com")
                         .password(passwordEncoder.encode("admin"))
-                        //.roles(roles)
+                        .roles(roles)
                         .dob(LocalDate.of(1990, 1, 1))
                         .build();
                 userRepository.save(user);

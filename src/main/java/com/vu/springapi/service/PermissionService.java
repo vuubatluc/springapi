@@ -6,6 +6,7 @@ import com.vu.springapi.mapper.PermissionMapper;
 import com.vu.springapi.model.Permission;
 import com.vu.springapi.repository.PermissionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class PermissionService {
     private final PermissionRepository permissionRepository;
     private final PermissionMapper permissionMapper;
 
+    @PreAuthorize("hasRole('ADMIN')")
     public PermissionResponse create(PermissionRequest request){
         Permission permission = permissionMapper.toPermission(request);
         permissionRepository.save(permission);
@@ -23,11 +25,13 @@ public class PermissionService {
         return permissionMapper.toPermissionResponse(permission);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<PermissionResponse> getAll(){
         var permissions = permissionRepository.findAll();
         return permissions.stream().map(permissionMapper::toPermissionResponse).toList();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(String permission){
         permissionRepository.deleteById(permission);
     }
