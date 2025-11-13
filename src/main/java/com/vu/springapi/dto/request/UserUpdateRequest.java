@@ -23,6 +23,8 @@ public class UserUpdateRequest {
 
     private String email;
 
+    private String phone;
+
     private LocalDate dob;
 
     private List<String> roles;

@@ -26,6 +26,8 @@ public class UserCreateRequest {
 
     private String email;
 
+    private String phone;
+
     private LocalDate dob;
 
 }
