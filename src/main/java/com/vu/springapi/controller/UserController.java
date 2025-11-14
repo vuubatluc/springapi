@@ -68,7 +68,7 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping("/updatemyinfo")
+    @PutMapping("/updatemyinfo")
     public ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UserUpdateRequest userUpdateRequest){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateMyInfo(userUpdateRequest))

@@ -3,6 +3,7 @@ package com.vu.springapi.controller;
 import com.nimbusds.jose.JOSEException;
 import com.vu.springapi.dto.request.AuthenticationRequest;
 import com.vu.springapi.dto.request.IntrospectRequest;
+import com.vu.springapi.dto.request.LogoutRequest;
 import com.vu.springapi.dto.response.ApiResponse;
 import com.vu.springapi.dto.response.AuthenticationResponse;
 import com.vu.springapi.dto.response.IntrospectResponse;
@@ -33,6 +34,13 @@ public class AuthenticationController {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
+                .build();
+    }
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
                 .build();
     }
 }
