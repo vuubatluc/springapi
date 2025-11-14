@@ -30,6 +30,7 @@ public class CustomJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
+        log.info("CustomJwtDecoder.decode() is called - starting token validation");
 
         try {
             var response = authenticationService.introspect(IntrospectRequest.builder()
@@ -40,10 +41,12 @@ public class CustomJwtDecoder implements JwtDecoder {
             if (!response.isValid())
                 throw new JwtException("Token invalid");
         } catch (JOSEException | ParseException e) {
+            log.error("Error during token introspection: {}", e.getMessage());
             throw new JwtException(e.getMessage());
         }
 
         if (Objects.isNull(nimbusJwtDecoder)) {
+            log.info("Initializing NimbusJwtDecoder with secret key");
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
             nimbusJwtDecoder = NimbusJwtDecoder
                     .withSecretKey(secretKeySpec)
@@ -51,6 +54,7 @@ public class CustomJwtDecoder implements JwtDecoder {
                     .build();
         }
 
+        log.info("Token validation successful, decoding JWT");
         return nimbusJwtDecoder.decode(token);
     }
 }
