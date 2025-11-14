@@ -3,6 +3,7 @@ package com.vu.springapi.config;
 import com.nimbusds.jose.JOSEException;
 import com.vu.springapi.dto.request.IntrospectRequest;
 import com.vu.springapi.service.AuthenticationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -16,6 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.text.ParseException;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
     @Value("${jwt.signerKey}")
@@ -34,6 +36,7 @@ public class CustomJwtDecoder implements JwtDecoder {
                     .token(token)
                     .build());
 
+            log.info("Introspect token result - token: {}, isValid: {}", token, response.isValid());
             if (!response.isValid())
                 throw new JwtException("Token invalid");
         } catch (JOSEException | ParseException e) {

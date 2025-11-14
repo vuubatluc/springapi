@@ -29,7 +29,7 @@ public class ApplicationInitConfig {
         return args -> {
             if(userRepository.findByUsername("admin").isEmpty()){
                 Set<Permission> permissions = new HashSet<>();
-                Permission permission = new Permission("UPDATE DATA", "Update data permission");
+                Permission permission = new Permission("UPDATE_DATA", "Update data permission");
                 permissions.add(permission);
                 permissionRepository.save(permission);
 
