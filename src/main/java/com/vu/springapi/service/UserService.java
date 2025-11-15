@@ -49,7 +49,7 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     //@PreAuthorize("hasAuthority('CREATE_DATA')")
     public List<UserResponse> getUsers(){
         log.info("In method get Users");

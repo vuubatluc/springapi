@@ -23,7 +23,15 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/login", "/auth/introspect", "/auth/logout"};
+    private final String[] PUBLIC_ENDPOINTS = {
+            "/users",
+            "/auth/login",
+            "/auth/introspect",
+            "/auth/logout",
+            "/auth/forget-password",
+            "/auth/verify-otp",
+            "/auth/reset-password"
+    };
 
     private final CustomJwtDecoder customJwtDecoder;
 

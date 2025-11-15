@@ -6,15 +6,23 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.vu.springapi.dto.request.AuthenticationRequest;
+import com.vu.springapi.dto.request.ForgetPasswordRequest;
 import com.vu.springapi.dto.request.IntrospectRequest;
 import com.vu.springapi.dto.request.LogoutRequest;
+import com.vu.springapi.dto.request.ResetPasswordRequest;
+import com.vu.springapi.dto.request.VerifyOtpRequest;
 import com.vu.springapi.dto.response.AuthenticationResponse;
+import com.vu.springapi.dto.response.ForgetPasswordResponse;
 import com.vu.springapi.dto.response.IntrospectResponse;
+import com.vu.springapi.dto.response.ResetPasswordResponse;
+import com.vu.springapi.dto.response.VerifyOtpResponse;
 import com.vu.springapi.exception.AppException;
 import com.vu.springapi.exception.ErrorCode;
 import com.vu.springapi.model.InvalidatedToken;
+import com.vu.springapi.model.OtpToken;
 import com.vu.springapi.model.User;
 import com.vu.springapi.repository.InvalidatedTokenRepository;
+import com.vu.springapi.repository.OtpTokenRepository;
 import com.vu.springapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
@@ -27,9 +35,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Random;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -39,6 +49,8 @@ import java.util.UUID;
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
+    private final OtpTokenRepository otpTokenRepository;
+    private final EmailService emailService;
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -89,6 +101,76 @@ public class AuthenticationService {
                 .build();
     }
 
+    public ForgetPasswordResponse forgetPassword (ForgetPasswordRequest request){
+        if(!userRepository.existsByEmail(request.getEmail())){
+            throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
+        }
+
+        String otp = generateOtp();
+
+        OtpToken otpToken = OtpToken.builder()
+                .email(request.getEmail())
+                .otp(otp)
+                .expiryTime(LocalDateTime.now().plusMinutes(5))
+                .used(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        otpTokenRepository.save(otpToken);
+
+        emailService.sendOtpEmail(request.getEmail(), otp);
+
+        return ForgetPasswordResponse.builder()
+                .exist(true)
+                .message("OTP has been sent to your email. Please check your inbox.")
+                .build();
+    }
+
+    public VerifyOtpResponse verifyOtp(VerifyOtpRequest request) {
+        OtpToken otpToken = otpTokenRepository
+                .findByEmailAndOtpAndUsedFalseAndExpiryTimeAfter(
+                        request.getEmail(),
+                        request.getOtp(),
+                        LocalDateTime.now()
+                )
+                .orElseThrow(() -> new AppException(ErrorCode.OTP_INVALID));
+
+        return VerifyOtpResponse.builder()
+                .valid(true)
+                .message("OTP verified successfully. You can now reset your password.")
+                .build();
+    }
+
+    public ResetPasswordResponse resetPassword(ResetPasswordRequest request) {
+        OtpToken otpToken = otpTokenRepository
+                .findByEmailAndOtpAndUsedFalseAndExpiryTimeAfter(
+                        request.getEmail(),
+                        request.getOtp(),
+                        LocalDateTime.now()
+                )
+                .orElseThrow(() -> new AppException(ErrorCode.OTP_INVALID));
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_FOUND));
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        otpToken.setUsed(true);
+        otpTokenRepository.save(otpToken);
+
+        return ResetPasswordResponse.builder()
+                .success(true)
+                .message("Password has been reset successfully. You can now login with your new password.")
+                .build();
+    }
+
+    private String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000);
+        return String.valueOf(otp);
+    }
 
     private SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
