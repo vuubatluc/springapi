@@ -122,7 +122,6 @@ public class AuthenticationService {
 
         return ForgetPasswordResponse.builder()
                 .exist(true)
-                .message("OTP has been sent to your email. Please check your inbox.")
                 .build();
     }
 
@@ -137,7 +136,6 @@ public class AuthenticationService {
 
         return VerifyOtpResponse.builder()
                 .valid(true)
-                .message("OTP verified successfully. You can now reset your password.")
                 .build();
     }
 
@@ -162,7 +160,6 @@ public class AuthenticationService {
 
         return ResetPasswordResponse.builder()
                 .success(true)
-                .message("Password has been reset successfully. You can now login with your new password.")
                 .build();
     }
 

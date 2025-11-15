@@ -9,5 +9,4 @@ import lombok.*;
 @NoArgsConstructor
 public class ForgetPasswordResponse {
     private boolean exist;
-    private String message;
 }

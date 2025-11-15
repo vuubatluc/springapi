@@ -9,6 +9,5 @@ import lombok.*;
 @NoArgsConstructor
 public class ResetPasswordResponse {
     private boolean success;
-    private String message;
 }
 
