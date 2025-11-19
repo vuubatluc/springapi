@@ -1,5 +1,6 @@
 package com.vu.springapi.controller;
 
+import com.vu.springapi.dto.request.UpdateMyInfoRequest;
 import com.vu.springapi.dto.request.UserCreateRequest;
 import com.vu.springapi.dto.request.UserUpdateRequest;
 import com.vu.springapi.dto.response.ApiResponse;
@@ -69,9 +70,9 @@ public class UserController {
     }
 
     @PutMapping("/updatemyinfo")
-    public ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UserUpdateRequest userUpdateRequest){
+    public ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UpdateMyInfoRequest request){
         return ApiResponse.<UserResponse>builder()
-                .result(userService.updateMyInfo(userUpdateRequest))
+                .result(userService.updateMyInfo(request))
                 .build();
     }
 }
