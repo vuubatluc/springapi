@@ -1,5 +1,6 @@
 package com.vu.springapi.service;
 
+import com.vu.springapi.dto.request.UpdateMyInfoRequest;
 import com.vu.springapi.dto.request.UserCreateRequest;
 import com.vu.springapi.dto.request.UserUpdateRequest;
 import com.vu.springapi.dto.response.UserResponse;
@@ -7,7 +8,9 @@ import com.vu.springapi.enums.Role;
 import com.vu.springapi.exception.AppException;
 import com.vu.springapi.exception.ErrorCode;
 import com.vu.springapi.mapper.UserMapper;
+import com.vu.springapi.model.Cart;
 import com.vu.springapi.model.User;
+import com.vu.springapi.repository.CartRepository;
 import com.vu.springapi.repository.RoleRepository;
 import com.vu.springapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +22,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -32,6 +33,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final CartRepository cartRepository;
 
     public UserResponse createUser(UserCreateRequest request){
         if(userRepository.existsByEmail(request.getEmail())) throw new AppException(ErrorCode.EMAIL_EXIST);
@@ -46,7 +48,17 @@ public class UserService {
         var roles = roleRepository.findAllById(roleUser);
         user.setRoles(new HashSet<>(roles));
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+
+        Cart cart = Cart.builder()
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+
+        cartRepository.save(cart);
+
+        return userMapper.toUserResponse(savedUser);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -85,16 +97,14 @@ public class UserService {
     }
 
     @PostAuthorize("returnObject.username == authentication.name")
-    public UserResponse updateMyInfo(UserUpdateRequest userUpdateRequest){
+    public UserResponse updateMyInfo(UpdateMyInfoRequest request){
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        userMapper.updateUser(user, userUpdateRequest);
-        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+        userMapper.updateMyInfo(user, request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        var roles = roleRepository.findAllById(userUpdateRequest.getRoles());
-        user.setRoles(new HashSet<>(roles));
         return userMapper.toUserResponse(userRepository.save(user));
     }
 

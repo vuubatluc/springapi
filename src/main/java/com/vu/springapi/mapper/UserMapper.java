@@ -1,5 +1,6 @@
 package com.vu.springapi.mapper;
 
+import com.vu.springapi.dto.request.UpdateMyInfoRequest;
 import com.vu.springapi.dto.request.UserCreateRequest;
 import com.vu.springapi.dto.request.UserUpdateRequest;
 import com.vu.springapi.dto.response.UserResponse;
@@ -16,4 +17,5 @@ public interface UserMapper {
     @Mapping(target = "roles", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
     UserResponse toUserResponse(User user);
+    void updateMyInfo(@MappingTarget User user, UpdateMyInfoRequest request);
 }
