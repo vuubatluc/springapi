@@ -6,19 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateMyInfoRequest {
-    private String name;
-
-    private String email;
-
-    private String phone;
-
-    private LocalDate dob;
-
+public class ChangePasswordRequest {
+    @Size(min = 8, message = "PASSWORD_INVALID")
+    private String password;
 }
