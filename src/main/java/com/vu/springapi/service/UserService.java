@@ -79,6 +79,7 @@ public class UserService {
     public UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest){
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        userMapper.updateUser(user, userUpdateRequest);
         var roles = roleRepository.findAllById(userUpdateRequest.getRoles());
         user.setRoles(new HashSet<>(roles));
         return userMapper.toUserResponse(userRepository.save(user));
@@ -98,6 +99,7 @@ public class UserService {
         String name = context.getAuthentication().getName();
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        userMapper.updateMyInfo(user, request);
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
