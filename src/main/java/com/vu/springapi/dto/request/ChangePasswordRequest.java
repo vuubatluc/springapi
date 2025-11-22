@@ -13,5 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ChangePasswordRequest {
     @Size(min = 8, message = "PASSWORD_INVALID")
-    private String password;
+    private String currentPassword;
+
+    @Size(min = 8, message = "PASSWORD_INVALID")
+    private String newPassword;
 }

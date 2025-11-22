@@ -113,7 +113,13 @@ public class UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse changePassword(Long id, ChangePasswordRequest request){
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        boolean authenticated = passwordEncoder.matches(request.getCurrentPassword(), user.getPassword());
+        if(!authenticated){
+            throw new AppException(ErrorCode.CURRENT_PASSWORD_INCORRECT);
+        }
+        else{
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -123,7 +129,13 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        boolean authenticated = passwordEncoder.matches(request.getCurrentPassword(), user.getPassword());
+        if(!authenticated){
+            throw new AppException(ErrorCode.CURRENT_PASSWORD_INCORRECT);
+        }
+        else{
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

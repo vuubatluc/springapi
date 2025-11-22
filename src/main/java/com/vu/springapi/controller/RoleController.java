@@ -1,12 +1,8 @@
 package com.vu.springapi.controller;
 
-import com.vu.springapi.dto.request.PermissionRequest;
 import com.vu.springapi.dto.request.RoleRequest;
 import com.vu.springapi.dto.response.ApiResponse;
-import com.vu.springapi.dto.response.PermissionResponse;
 import com.vu.springapi.dto.response.RoleResponse;
-import com.vu.springapi.model.Role;
-import com.vu.springapi.service.PermissionService;
 import com.vu.springapi.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +32,13 @@ public class RoleController {
     public ApiResponse<Void> delete(@PathVariable String role){
         roleService.delete(role);
         return ApiResponse.<Void>builder().build();
+    }
+
+
+    @PutMapping("/{role}")
+    public ApiResponse<RoleResponse> update(@PathVariable("role") String curRole, @RequestBody RoleRequest request){
+        return ApiResponse.<RoleResponse>builder()
+                .result(roleService.update(curRole, request))
+                .build();
     }
 }
