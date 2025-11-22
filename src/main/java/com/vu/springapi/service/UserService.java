@@ -1,10 +1,10 @@
 package com.vu.springapi.service;
 
+import com.vu.springapi.dto.request.ChangePasswordRequest;
 import com.vu.springapi.dto.request.UpdateMyInfoRequest;
 import com.vu.springapi.dto.request.UserCreateRequest;
 import com.vu.springapi.dto.request.UserUpdateRequest;
 import com.vu.springapi.dto.response.UserResponse;
-import com.vu.springapi.enums.Role;
 import com.vu.springapi.exception.AppException;
 import com.vu.springapi.exception.ErrorCode;
 import com.vu.springapi.mapper.UserMapper;
@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -81,8 +80,6 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateUser(user, userUpdateRequest);
-        user.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
-
         var roles = roleRepository.findAllById(userUpdateRequest.getRoles());
         user.setRoles(new HashSet<>(roles));
         return userMapper.toUserResponse(userRepository.save(user));
@@ -103,7 +100,6 @@ public class UserService {
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         userMapper.updateMyInfo(user, request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -112,5 +108,23 @@ public class UserService {
     public void deleteUser(Long id){
         User user = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
         userRepository.deleteById(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse changePassword(Long id, ChangePasswordRequest request){
+        User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @PostAuthorize("returnObject.username == authentication.name")
+    public UserResponse changePassword(ChangePasswordRequest request){
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

@@ -1,5 +1,6 @@
 package com.vu.springapi.controller;
 
+import com.vu.springapi.dto.request.ChangePasswordRequest;
 import com.vu.springapi.dto.request.UpdateMyInfoRequest;
 import com.vu.springapi.dto.request.UserCreateRequest;
 import com.vu.springapi.dto.request.UserUpdateRequest;
@@ -73,6 +74,18 @@ public class UserController {
     public ApiResponse<UserResponse> updateMyInfo(@RequestBody @Valid UpdateMyInfoRequest request){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateMyInfo(request))
+                .build();
+    }
+    @PutMapping("/changePassword/{id}")
+    public ApiResponse<UserResponse> changePassword(@PathVariable("id") Long id ,@RequestBody @Valid ChangePasswordRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.changePassword(id, request))
+                .build();
+    }
+    @PutMapping("/changePassword")
+    public ApiResponse<UserResponse> changePassword(@RequestBody @Valid ChangePasswordRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.changePassword(request))
                 .build();
     }
 }
