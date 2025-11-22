@@ -29,6 +29,13 @@ public class PermissonController {
                 .build();
     }
 
+    @PutMapping("/{permission}")
+    public ApiResponse<PermissionResponse> update(@PathVariable String permission, @RequestBody PermissionRequest request){
+        return ApiResponse.<PermissionResponse>builder()
+                .result(permissionService.update(permission, request))
+                .build();
+    }
+
     @DeleteMapping("/{permission}")
     public ApiResponse<Void> delete(@PathVariable String permission){
         permissionService.delete(permission);

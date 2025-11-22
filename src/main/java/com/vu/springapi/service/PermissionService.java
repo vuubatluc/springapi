@@ -2,6 +2,8 @@ package com.vu.springapi.service;
 
 import com.vu.springapi.dto.request.PermissionRequest;
 import com.vu.springapi.dto.response.PermissionResponse;
+import com.vu.springapi.exception.AppException;
+import com.vu.springapi.exception.ErrorCode;
 import com.vu.springapi.mapper.PermissionMapper;
 import com.vu.springapi.model.Permission;
 import com.vu.springapi.repository.PermissionRepository;
@@ -29,6 +31,17 @@ public class PermissionService {
     public List<PermissionResponse> getAll(){
         var permissions = permissionRepository.findAll();
         return permissions.stream().map(permissionMapper::toPermissionResponse).toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public PermissionResponse update(String name, PermissionRequest request){
+        Permission permission = permissionRepository.findById(name)
+                .orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_FOUND));
+
+        permissionMapper.updatePermission(permission, request);
+        permissionRepository.save(permission);
+
+        return permissionMapper.toPermissionResponse(permission);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
