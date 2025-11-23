@@ -107,7 +107,10 @@ public class UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(Long id){
         User user = userRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.USER_NOT_FOUND));
-        userRepository.deleteById(id);
+        log.info("Deleting user with id: {} and username: {}", id, user.getUsername());
+        // With cascade delete configured in User entity, cart, orders, and addresses will be automatically deleted
+        userRepository.delete(user);
+        log.info("User deleted successfully");
     }
 
     @PreAuthorize("hasRole('ADMIN')")
