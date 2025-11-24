@@ -30,7 +30,8 @@ public class SecurityConfig {
             "/auth/logout",
             "/auth/forget-password",
             "/auth/verify-otp",
-            "/auth/reset-password"
+            "/auth/reset-password",
+            "/carts/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
@@ -44,6 +45,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/home").permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll() 
                         .anyRequest().authenticated());
         httpSecurity
             .sessionManagement(session -> session
