@@ -1,6 +1,7 @@
 package com.vu.springapi.exception;
 
 import com.vu.springapi.dto.response.ApiResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -13,7 +14,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse> handlingRuntimeException(Exception exception){
+        exception.printStackTrace();
         ApiResponse apiResponse = new ApiResponse();
+        if (exception instanceof org.springframework.web.servlet.resource.NoResourceFoundException) {
+            apiResponse.setCode(ErrorCode.UNCATEGORIZE_EXCEPTION.getCode());
+            apiResponse.setMessage("Tài nguyên không tìm thấy. Kiểm tra URL hoặc Route.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+        }
          apiResponse.setCode(ErrorCode.UNCATEGORIZE_EXCEPTION.getCode());
          apiResponse.setMessage(ErrorCode.UNCATEGORIZE_EXCEPTION.getMessage());
          return ResponseEntity.status(ErrorCode.UNCATEGORIZE_EXCEPTION.getStatusCode()).body(apiResponse);

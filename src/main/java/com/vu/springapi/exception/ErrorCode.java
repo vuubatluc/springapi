@@ -24,7 +24,9 @@ public enum ErrorCode {
     CURRENT_PASSWORD_INCORRECT(1013, "Current password is incorrect!", HttpStatus.UNAUTHORIZED),
     ROLE_NOT_FOUND(1014, "Role not found!", HttpStatus.NOT_FOUND),
     PERMISSION_NOT_FOUND(1015, "Permission not found!", HttpStatus.NOT_FOUND),
-    CATEGORY_NOT_FOUND(1016, "Category not found!", HttpStatus.NOT_FOUND)
+    PRODUCT_NOT_FOUND(1016, "Product not found!", HttpStatus.NOT_FOUND),
+    PRODUCT_SKU_EXISTED(1017, "Product SKU existed!", HttpStatus.BAD_REQUEST),
+    CATEGORY_NOT_FOUND(1018, "Category not found!", HttpStatus.NOT_FOUND)
     ;
 
     private int code;
