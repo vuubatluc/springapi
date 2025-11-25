@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime; // <-- Cần thiết cho Product Entity
@@ -31,6 +32,7 @@ public class ProductService {
     // ************************
     // 1. READ (Tìm kiếm, Lọc, Phân trang) - CÔNG KHAI
     // ************************
+    @Transactional(readOnly = true)
     public Page<Product> getProductsFiltered(String keyword, Long categoryId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
@@ -97,6 +99,7 @@ public class ProductService {
     }
 
     // 3. READ (Lấy chi tiết)
+    @Transactional(readOnly = true)
     public Product getProductById(Long productId) {
         return productRepository.findById(productId)
             .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
