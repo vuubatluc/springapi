@@ -26,7 +26,7 @@ public class CartController {
     public ApiResponse<CartResponse> getCart(@PathVariable @Positive Long userId) {
         log.info("Lấy giỏ hàng của user: {}", userId);
         return ApiResponse.<CartResponse>builder()
-                .result(cartService.getCartResponseByUserId(userId))
+                .result(cartService.getCartByUserId(userId))
                 .build();
     }
 

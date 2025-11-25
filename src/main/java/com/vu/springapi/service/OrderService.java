@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -77,7 +78,8 @@ public class OrderService {
         order.setAddress(address);
         order.setOrderNumber(generateOrderNumber());
         order.setStatus("pending");
-        order.setPlacedAt(LocalDateTime.now());
+        // Lưu thời gian theo múi giờ Việt Nam (UTC+7)
+        order.setPlacedAt(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")));
 
         if (request.getShippingFee() != null) {
             order.setShippingFee(request.getShippingFee());

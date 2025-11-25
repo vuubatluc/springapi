@@ -3,14 +3,19 @@ package com.vu.springapi.service;
 import com.vu.springapi.dto.request.AddToCartRequest;
 import com.vu.springapi.dto.request.UpdateCartItemRequest;
 import com.vu.springapi.dto.response.CartResponse;
+import com.vu.springapi.exception.AppException;
+import com.vu.springapi.exception.ErrorCode;
+import com.vu.springapi.mapper.CartItemMapper;
 import com.vu.springapi.mapper.CartMapper;
 import com.vu.springapi.model.*;
 import com.vu.springapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -24,25 +29,55 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
     private final CartMapper cartMapper;
 
-    /**
-     * Lấy giỏ hàng theo user ID
-     */
-    @Transactional(readOnly = true)
-    public Cart getCartByUserId(Long userId) {
-        return cartRepository.findByUserId(userId).orElse(null);
+    @Autowired
+    private CartItemMapper cartItemMapper;
+
+    public CartResponse getCartByUserId(Long userId) {
+        // Tìm cart theo userId, nếu không có thì tạo mới
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setCreatedAt(LocalDateTime.now());
+                    newCart.setUpdatedAt(LocalDateTime.now());
+                    return cartRepository.save(newCart);
+                });
+
+        CartResponse response = cartMapper.toCartResponse(cart);
+
+        // Populate cartItems
+        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+        response.setCartItems(cartItemMapper.toCartItemResponseList(items));
+
+        // Calculate totals
+        calculateCartTotals(response, items);
+
+        return response;
     }
 
     /**
      * Thêm sản phẩm vào giỏ hàng
      */
-    public Cart addItemToCart(Long userId, Long productId, Integer quantity) {
+    public CartResponse addItemToCart(Long userId, Long productId, Integer quantity) {
         if (quantity <= 0) {
             throw new RuntimeException("Số lượng phải lớn hơn 0");
         }
 
-        Cart cart = getCartByUserId(userId);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseGet(() -> {
+                    User user = userRepository.findById(userId)
+                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setCreatedAt(LocalDateTime.now());
+                    newCart.setUpdatedAt(LocalDateTime.now());
+                    return cartRepository.save(newCart);
+                });
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
@@ -56,11 +91,11 @@ public class CartService {
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
             int newQuantity = item.getQuantity() + quantity;
-            
+
             if (product.getStock() < newQuantity) {
                 throw new RuntimeException("Tồn kho không đủ cho số lượng được cập nhật");
             }
-            
+
             item.setQuantity(newQuantity);
             cartItemRepository.save(item);
         } else {
@@ -73,7 +108,9 @@ public class CartService {
         }
 
         cart.setUpdatedAt(LocalDateTime.now());
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
+
+        return getCartByUserId(userId);
     }
 
     /**
@@ -89,49 +126,33 @@ public class CartService {
 
         Cart cart = cartItem.getCart();
         cartItemRepository.delete(cartItem);
-        
+
         cart.setUpdatedAt(LocalDateTime.now());
-        Cart savedCart = cartRepository.save(cart);
-        
-        CartResponse response = cartMapper.toCartResponse(savedCart);
-        calculateCartTotals(response, savedCart);
+        cartRepository.save(cart);
+
         log.info("Xóa sản phẩm {} khỏi giỏ hàng", itemId);
-        return response;
+        return getCartByUserId(userId);
     }
 
     /**
      * Xóa toàn bộ giỏ hàng
      */
     public void clearCart(Long userId) {
-        Cart cart = getCartByUserId(userId);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.CART_NOT_FOUND));
 
         cartItemRepository.deleteByCart(cart);
-        
+
         cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
         log.info("Xóa toàn bộ giỏ hàng của user: {}", userId);
     }
 
     /**
-     * Lấy giỏ hàng theo user ID (trả về DTO)
-     */
-    @Transactional(readOnly = true)
-    public CartResponse getCartResponseByUserId(Long userId) {
-        Cart cart = getCartByUserId(userId);
-        CartResponse response = cartMapper.toCartResponse(cart);
-        calculateCartTotals(response, cart);
-        return response;
-    }
-
-    /**
      * Thêm sản phẩm vào giỏ hàng (dùng DTO)
      */
     public CartResponse addItemToCart(Long userId, AddToCartRequest request) {
-        Cart cart = addItemToCart(userId, request.getProductId(), request.getQuantity());
-        CartResponse response = cartMapper.toCartResponse(cart);
-        calculateCartTotals(response, cart);
-        log.info("Thêm sản phẩm vào giỏ hàng của user: {}", userId);
-        return response;
+        return addItemToCart(userId, request.getProductId(), request.getQuantity());
     }
 
     /**
@@ -160,37 +181,33 @@ public class CartService {
         cartItemRepository.save(cartItem);
 
         cart.setUpdatedAt(LocalDateTime.now());
-        Cart savedCart = cartRepository.save(cart);
+        cartRepository.save(cart);
 
-        CartResponse response = cartMapper.toCartResponse(savedCart);
-        calculateCartTotals(response, savedCart);
         log.info("Cập nhật số lượng sản phẩm {} của user: {}", itemId, userId);
-        return response;
+        return getCartByUserId(userId);
     }
 
     /**
-     * Tính toán tổng số lượng và tổng tiền
+     * Tính toán tổng số lượng và tổng tiền từ danh sách CartItem
      */
-    private void calculateCartTotals(CartResponse response, Cart cart) {
-        List<CartItem> cartItems = cartItemRepository.findByCart(cart);
-        
+    private void calculateCartTotals(CartResponse response, List<CartItem> cartItems) {
         if (cartItems != null && !cartItems.isEmpty()) {
             int totalItems = 0;
-            java.math.BigDecimal totalPrice = java.math.BigDecimal.ZERO;
-            
+            BigDecimal totalPrice = BigDecimal.ZERO;
+
             for (CartItem item : cartItems) {
                 totalItems += item.getQuantity();
-                
-                java.math.BigDecimal itemPrice = item.getProduct().getPrice();
-                java.math.BigDecimal itemTotal = itemPrice.multiply(java.math.BigDecimal.valueOf(item.getQuantity()));
+
+                BigDecimal itemPrice = item.getProduct().getPrice();
+                BigDecimal itemTotal = itemPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
                 totalPrice = totalPrice.add(itemTotal);
             }
-            
+
             response.setTotalItems(totalItems);
             response.setTotalPrice(totalPrice);
         } else {
             response.setTotalItems(0);
-            response.setTotalPrice(java.math.BigDecimal.ZERO);
+            response.setTotalPrice(BigDecimal.ZERO);
         }
     }
 }
