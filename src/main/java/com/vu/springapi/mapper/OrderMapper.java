@@ -11,12 +11,15 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring",
+        uses = {AddressMapper.class},
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OrderMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderNumber", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "address", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "subtotal", ignore = true)
     @Mapping(target = "total", ignore = true)
@@ -26,6 +29,8 @@ public interface OrderMapper {
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "userName", source = "user.username")
+    @Mapping(target = "addressId", source = "address.id")
+    @Mapping(target = "address", source = "address")
     OrderResponse toOrderResponse(Order order);
 
     @Mapping(target = "productId", source = "product.id")
@@ -34,6 +39,7 @@ public interface OrderMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderNumber", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "address", ignore = true)
     @Mapping(target = "subtotal", ignore = true)
     @Mapping(target = "shippingFee", ignore = true)
     @Mapping(target = "total", ignore = true)

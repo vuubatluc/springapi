@@ -11,9 +11,11 @@ import com.vu.springapi.model.Order;
 import com.vu.springapi.model.OrderItem;
 import com.vu.springapi.model.Product;
 import com.vu.springapi.model.User;
+import com.vu.springapi.model.Address;
 import com.vu.springapi.repository.OrderRepository;
 import com.vu.springapi.repository.ProductRepository;
 import com.vu.springapi.repository.UserRepository;
+import com.vu.springapi.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,6 +37,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final AddressRepository addressRepository;
     private final OrderMapper orderMapper;
 
     @Transactional(readOnly = true)
@@ -66,8 +69,12 @@ public class OrderService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        Address address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+
         Order order = orderMapper.toOrder(request);
         order.setUser(user);
+        order.setAddress(address);
         order.setOrderNumber(generateOrderNumber());
         order.setStatus("pending");
         order.setPlacedAt(LocalDateTime.now());
