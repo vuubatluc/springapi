@@ -22,6 +22,10 @@ public class OrderCreateRequest {
     @Positive(message = "ID nguoi dung phai lon hon 0")
     private Long userId;
 
+    @NotNull(message = "ID dia chi khong duoc de trong")
+    @Positive(message = "ID dia chi phai lon hon 0")
+    private Long addressId;
+
     @NotEmpty(message = "Danh sach san pham khong duoc rong")
     @Valid
     private List<OrderItemRequest> items;

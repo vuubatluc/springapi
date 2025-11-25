@@ -18,6 +18,8 @@ public class OrderResponse {
     private String orderNumber;
     private Long userId;
     private String userName;
+    private Long addressId;
+    private AddressResponse address;
     private String status;
     private BigDecimal subtotal;
     private BigDecimal shippingFee;
