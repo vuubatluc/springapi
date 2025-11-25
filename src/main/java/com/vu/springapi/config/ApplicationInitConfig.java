@@ -1,8 +1,10 @@
 package com.vu.springapi.config;
 
+import com.vu.springapi.model.Category;
 import com.vu.springapi.model.Permission;
 import com.vu.springapi.model.Role;
 import com.vu.springapi.model.User;
+import com.vu.springapi.repository.CategoryRepository;
 import com.vu.springapi.repository.PermissionRepository;
 import com.vu.springapi.repository.RoleRepository;
 import com.vu.springapi.repository.UserRepository;
@@ -25,8 +27,37 @@ public class ApplicationInitConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    protected ApplicationRunner applicationRunner(UserRepository userRepository, PermissionRepository permissionRepository, RoleRepository roleRepository){
+    protected ApplicationRunner applicationRunner(UserRepository userRepository, PermissionRepository permissionRepository, RoleRepository roleRepository, CategoryRepository categoryRepository){
         return args -> {
+            // Khởi tạo categories mặc định
+            if(categoryRepository.count() == 0){
+                Category quan = Category.builder()
+                        .name("Quần")
+                        .description("Các loại quần")
+                        .build();
+                categoryRepository.save(quan);
+
+                Category ao = Category.builder()
+                        .name("Áo")
+                        .description("Các loại áo")
+                        .build();
+                categoryRepository.save(ao);
+
+                Category giay = Category.builder()
+                        .name("Giày")
+                        .description("Các loại giày")
+                        .build();
+                categoryRepository.save(giay);
+
+                Category phuKien = Category.builder()
+                        .name("Phụ kiện")
+                        .description("Các loại phụ kiện thời trang")
+                        .build();
+                categoryRepository.save(phuKien);
+
+                log.warn("Default categories have been created: Quần, Áo, Giày, Phụ kiện");
+            }
+
             if(userRepository.findByUsername("admin").isEmpty()){
                 Set<Permission> permissions = new HashSet<>();
                 Permission permission = new Permission("UPDATE_DATA", "Update data permission");
@@ -48,6 +79,7 @@ public class ApplicationInitConfig {
                 Set<Role> rolesUser = new HashSet<>();
                 Role roleUser = new Role("USER", "Customer", permissionsUser);
                 roleRepository.save(roleUser);
+
 
                 User user = User.builder()
                         .username("admin")

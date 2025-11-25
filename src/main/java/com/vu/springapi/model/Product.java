@@ -32,7 +32,7 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @Lob
+    @Column(length = 2000)
     private String description;
 
     @NotNull
