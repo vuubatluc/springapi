@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/src/main/java/com/vu/springapi/config/WebConfig.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/main/java/com/vu/springapi/config/WebConfig.java" />
+              <option name="originalContent" value="package com.vu.springapi.config;&#10;&#10;import org.springframework.context.annotation.Configuration;&#10;import org.springframework.web.servlet.config.annotation.CorsRegistry;&#10;import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;&#10;import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;&#10;&#10;@Configuration&#10;public class WebConfig implements WebMvcConfigurer {&#10;&#10;    @Override&#10;    public void addCorsMappings(CorsRegistry registry) {&#10;        registry.addMapping(&quot;/**&quot;)&#10;                .allowedOrigins(&#10;                    &quot;http://localhost:3000&quot;,    // React development (Create React App)&#10;                    &quot;http://localhost:5173&quot;,    // React development (Vite)&#10;                    &quot;http://127.0.0.1:3000&quot;,&#10;                    &quot;http://127.0.0.1:5173&quot;,&#10;                    &quot;https://yourfrontend.com&quot;,  // ← Thay bằng domain React app production (Vercel, Netlify, etc.)&#10;                    &quot;https://www.yourfrontend.com&quot;&#10;                )&#10;                .allowedMethods(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;HEAD&quot;, &quot;PATCH&quot;)&#10;                .allowedHeaders(&quot;*&quot;)&#10;                .allowCredentials(true)&#10;                .maxAge(3600); // Cache preflight response for 1 hour&#10;    }&#10;}&#10;" />
+              <option name="updatedContent" value="package com.vu.springapi.config;&#10;&#10;import org.springframework.context.annotation.Configuration;&#10;import org.springframework.web.servlet.config.annotation.CorsRegistry;&#10;import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;&#10;import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;&#10;&#10;@Configuration&#10;public class WebConfig implements WebMvcConfigurer {&#10;&#10;    @Override&#10;    public void addCorsMappings(CorsRegistry registry) {&#10;        registry.addMapping(&quot;/**&quot;)&#10;                .allowedOrigins(&#10;                    &quot;http://localhost:3000&quot;,    // React development (Create React App)&#10;                    &quot;http://localhost:5173&quot;,    // React development (Vite)&#10;                    &quot;http://127.0.0.1:3000&quot;,&#10;                    &quot;http://127.0.0.1:5173&quot;,&#10;                    &quot;https://yourfrontend.com&quot;,  // ← Thay bằng domain React app production (Vercel, Netlify, etc.)&#10;                    &quot;https://www.yourfrontend.com&quot;&#10;                )&#10;                .allowedMethods(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;HEAD&quot;, &quot;PATCH&quot;)&#10;                .allowedHeaders(&quot;*&quot;)&#10;                .allowCredentials(true)&#10;                .maxAge(3600); // Cache preflight response for 1 hour&#10;    }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

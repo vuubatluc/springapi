@@ -18,22 +18,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // Tìm theo user (OrderService đang gọi)
     Page<Order> findByUser_Id(Long userId, Pageable pageable);
 
-    // Tổng doanh thu
-    @Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o WHERE o.placedAt BETWEEN :from AND :to")
+    // Tổng doanh thu (chỉ đơn đã hoàn thành)
+    @Query("SELECT COALESCE(SUM(o.total), 0) FROM Order o WHERE o.placedAt BETWEEN :from AND :to AND o.status IN ('completed', 'delivered')")
     BigDecimal sumRevenue(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-    // Tổng số đơn
-    @Query("SELECT COUNT(o.id) FROM Order o WHERE o.placedAt BETWEEN :from AND :to")
+    // Tổng số đơn (chỉ đơn đã hoàn thành)
+    @Query("SELECT COUNT(o.id) FROM Order o WHERE o.placedAt BETWEEN :from AND :to AND o.status IN ('completed', 'delivered')")
     Long countOrders(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-    // Tổng số khách (đếm user khác nhau)
-    @Query("SELECT COUNT(DISTINCT o.user.id) FROM Order o WHERE o.placedAt BETWEEN :from AND :to")
+    // Tổng số khách (đếm user khác nhau, chỉ đơn đã hoàn thành)
+    @Query("SELECT COUNT(DISTINCT o.user.id) FROM Order o WHERE o.placedAt BETWEEN :from AND :to AND o.status IN ('completed', 'delivered')")
     Long countCustomers(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-    // Doanh thu theo ngày (cho biểu đồ)
+    // Doanh thu theo ngày (cho biểu đồ, chỉ đơn đã hoàn thành)
     @Query("SELECT DATE(o.placedAt) as date, COALESCE(SUM(o.total), 0) as revenue " +
            "FROM Order o " +
-           "WHERE o.placedAt BETWEEN :from AND :to " +
+           "WHERE o.placedAt BETWEEN :from AND :to AND o.status IN ('completed', 'delivered') " +
            "GROUP BY DATE(o.placedAt) " +
            "ORDER BY DATE(o.placedAt)")
     List<Object[]> getDailyRevenue(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);

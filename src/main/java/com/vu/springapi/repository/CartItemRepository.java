@@ -41,4 +41,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     // Tính tổng số lượng sản phẩm trong cart
     @Query("SELECT COALESCE(SUM(ci.quantity), 0) FROM CartItem ci WHERE ci.cart.id = :cartId")
     Integer getTotalQuantityByCartId(@Param("cartId") Long cartId);
+
+    List<CartItem> findByCartId(Long id);
 }
