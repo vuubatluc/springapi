@@ -26,7 +26,11 @@ public enum ErrorCode {
     PERMISSION_NOT_FOUND(1015, "Permission not found!", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_FOUND(1016, "Product not found!", HttpStatus.NOT_FOUND),
     PRODUCT_SKU_EXISTED(1017, "Product SKU existed!", HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_FOUND(1018, "Category not found!", HttpStatus.NOT_FOUND)
+    CATEGORY_NOT_FOUND(1018, "Category not found!", HttpStatus.NOT_FOUND),
+    ADDRESS_NOT_FOUND(1019, "Address not found!", HttpStatus.NOT_FOUND),
+    CART_NOT_FOUND(1020, "Cart not found!", HttpStatus.NOT_FOUND),
+    ORDER_NOT_FOUND(1021, "Order not found!", HttpStatus.NOT_FOUND),
+    USER_NOT_EXISTED(1022, "User not existed!", HttpStatus.NOT_FOUND)
     ;
 
     private int code;
