@@ -1,1 +1,19 @@
+# Ignore application config
+src/main/resources/application.yml
 
+# Ignore IDE files
+*.iml
+.idea/
+
+# Ignore build output
+/target/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore environment files
+.env
