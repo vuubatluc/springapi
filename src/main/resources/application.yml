@@ -49,17 +49,6 @@ server:
   servlet:
     context-path: /api
 
-# File Upload Configuration
-file:
-  upload-dir: uploads
-
-# Spring Servlet Multipart (File Upload)
-
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 100MB
-      max-request-size: 100MB
 
 jwt:
   signerKey: "faed9f589c3e55f64da992108879d6e0ac38f10522f356a59ed8a353447870ae"

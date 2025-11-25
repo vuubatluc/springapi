@@ -12,36 +12,16 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                    "http://localhost:3000",    // React development server
-                    "http://localhost:5173",    // Vite development server
+                    "http://localhost:3000",    // React development (Create React App)
+                    "http://localhost:5173",    // React development (Vite)
                     "http://127.0.0.1:3000",
                     "http://127.0.0.1:5173",
-                    "https://yourproductiondomain.com" // Thay thế bằng domain production của bạn
+                    "https://yourfrontend.com",  // ← Thay bằng domain React app production (Vercel, Netlify, etc.)
+                    "https://www.yourfrontend.com"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600); // Cache preflight response for 1 hour
-    }
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Cấu hình để serve static resources
-        registry.addResourceHandler("/static/**")
-                .addResourceLocations("classpath:/static/");
-
-        // Cấu hình để serve images, css, js files
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("classpath:/static/images/");
-
-        registry.addResourceHandler("/css/**")
-                .addResourceLocations("classpath:/static/css/");
-
-        registry.addResourceHandler("/js/**")
-                .addResourceLocations("classpath:/static/js/");
-
-        // Cấu hình để serve uploaded files
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
     }
 }

@@ -28,7 +28,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    
     // ************************
     // 1. READ (Tìm kiếm, Lọc, Phân trang) - CÔNG KHAI
     // ************************
