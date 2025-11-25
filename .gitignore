@@ -8,6 +8,10 @@ target/
 application.yml
 **/application.yml
 
+### Uploaded Files ###
+uploads/
+!uploads/.gitkeep
+
 ### STS ###
 .apt_generated
 .classpath

@@ -31,7 +31,10 @@ public class SecurityConfig {
             "/auth/forget-password",
             "/auth/verify-otp",
             "/auth/reset-password",
-            "/carts/**"
+            "/carts/**",
+            "/uploads/**",
+            "/products",
+            "/products/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
