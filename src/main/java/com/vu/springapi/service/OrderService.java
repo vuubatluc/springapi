@@ -47,7 +47,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponse> getOrdersByUserId(Long userId, Pageable pageable) {
         log.info("Lay tat ca don hang cua user: {}", userId);
-        return orderRepository.findByUserId(userId, pageable)
+        return orderRepository.findByUser_Id(userId, pageable)
                 .map(orderMapper::toOrderResponse);
     }
 
