@@ -36,8 +36,6 @@ public class ProductController {
   
     // 2. CREATE (Tạo mới) - ADMIN
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('SCOPE_UPDATE_DATA')")
     public ApiResponse<Product> createProduct(@RequestBody @Valid ProductCreateRequest request) {
         return ApiResponse.<Product>builder()
             .result(productService.createProduct(request))
@@ -56,7 +54,6 @@ public class ProductController {
 
     // 4. UPDATE (Cập nhật) - ADMIN
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('SCOPE_UPDATE_DATA')")
     public ApiResponse<Product> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateRequest request) {
         return ApiResponse.<Product>builder()
             .result(productService.updateProduct(id, request))
@@ -66,8 +63,6 @@ public class ProductController {
 
     // 5. DELETE (Xóa) - ADMIN
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PreAuthorize("hasAuthority('SCOPE_UPDATE_DATA')")
     public ApiResponse<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ApiResponse.<Void>builder().build(); // Trả về mã 204 No Content
