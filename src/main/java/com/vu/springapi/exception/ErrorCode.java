@@ -26,12 +26,7 @@ public enum ErrorCode {
     PERMISSION_NOT_FOUND(1015, "Permission not found!", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_FOUND(1016, "Product not found!", HttpStatus.NOT_FOUND),
     PRODUCT_SKU_EXISTED(1017, "Product SKU existed!", HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_FOUND(1018, "Category not found!", HttpStatus.NOT_FOUND),
-    FILE_EMPTY(1019, "File is empty!", HttpStatus.BAD_REQUEST),
-    FILE_INVALID(1020, "Invalid file path!", HttpStatus.BAD_REQUEST),
-    FILE_NOT_IMAGE(1021, "File must be an image!", HttpStatus.BAD_REQUEST),
-    FILE_TOO_LARGE(1022, "File size must not exceed 5MB!", HttpStatus.BAD_REQUEST),
-    FILE_UPLOAD_FAILED(1023, "Could not upload file!", HttpStatus.INTERNAL_SERVER_ERROR)
+    CATEGORY_NOT_FOUND(1018, "Category not found!", HttpStatus.NOT_FOUND)
     ;
 
     private int code;
