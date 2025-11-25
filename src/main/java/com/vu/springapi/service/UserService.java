@@ -9,6 +9,7 @@ import com.vu.springapi.exception.AppException;
 import com.vu.springapi.exception.ErrorCode;
 import com.vu.springapi.mapper.UserMapper;
 import com.vu.springapi.model.Cart;
+import com.vu.springapi.model.Order;
 import com.vu.springapi.model.User;
 import com.vu.springapi.repository.CartRepository;
 import com.vu.springapi.repository.RoleRepository;
@@ -21,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -65,7 +67,15 @@ public class UserService {
     public List<UserResponse> getUsers(){
         log.info("In method get Users");
         return userRepository.findAll().stream()
-                .map(userMapper::toUserResponse)
+                .map(user -> {
+                    UserResponse userResponse = userMapper.toUserResponse(user);
+                    // Calculate total order value
+                    BigDecimal totalOrderValue = user.getOrders().stream()
+                            .map(Order::getTotal)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    userResponse.setTotalOrderValue(totalOrderValue);
+                    return userResponse;
+                })
                 .toList();
     }
 
@@ -90,7 +100,15 @@ public class UserService {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
         User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        return userMapper.toUserResponse(user);
+
+        UserResponse userResponse = userMapper.toUserResponse(user);
+        // Calculate total order value
+        BigDecimal totalOrderValue = user.getOrders().stream()
+                .map(Order::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        userResponse.setTotalOrderValue(totalOrderValue);
+
+        return userResponse;
     }
 
     @PostAuthorize("returnObject.username == authentication.name")
