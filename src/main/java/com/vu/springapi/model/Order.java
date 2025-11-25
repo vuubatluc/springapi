@@ -29,6 +29,10 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    private Address address;
+
     private String status = "pending";
 
     @Column(nullable = false, precision = 12, scale = 2)

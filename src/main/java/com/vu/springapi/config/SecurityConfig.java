@@ -32,7 +32,6 @@ public class SecurityConfig {
             "/auth/verify-otp",
             "/auth/reset-password",
             "/carts/**",
-            "/uploads/**",
             "/products",
             "/products/**"
     };
