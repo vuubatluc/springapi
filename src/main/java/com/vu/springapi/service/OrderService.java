@@ -122,7 +122,63 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        orderMapper.updateOrder(order, request);
+        // Update address if provided
+        if (request.getAddressId() != null) {
+            Address address = addressRepository.findById(request.getAddressId())
+                    .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_FOUND));
+            order.setAddress(address);
+        }
+
+        // Update items if provided
+        if (request.getItems() != null && !request.getItems().isEmpty()) {
+            // Clear existing items
+            order.getItems().clear();
+
+            // Add new items and recalculate subtotal
+            BigDecimal subtotal = BigDecimal.ZERO;
+
+            for (OrderItemRequest itemRequest : request.getItems()) {
+                Product product = productRepository.findById(itemRequest.getProductId())
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+                OrderItem orderItem = OrderItem.builder()
+                        .order(order)
+                        .product(product)
+                        .productName(product.getName())
+                        .unitPrice(product.getPrice())
+                        .quantity(itemRequest.getQuantity())
+                        .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity())))
+                        .build();
+
+                order.getItems().add(orderItem);
+                subtotal = subtotal.add(orderItem.getTotalPrice());
+            }
+
+            order.setSubtotal(subtotal);
+
+            // Update shipping fee if provided
+            if (request.getShippingFee() != null) {
+                order.setShippingFee(request.getShippingFee());
+            }
+
+            // Recalculate total
+            order.setTotal(order.getSubtotal().add(order.getShippingFee()));
+        } else {
+            // If only shipping fee is updated without changing items
+            if (request.getShippingFee() != null) {
+                order.setShippingFee(request.getShippingFee());
+                order.setTotal(order.getSubtotal().add(order.getShippingFee()));
+            }
+        }
+
+        // Update status and note using mapper
+        if (request.getStatus() != null) {
+            order.setStatus(request.getStatus());
+        }
+
+        if (request.getNote() != null) {
+            order.setNote(request.getNote());
+        }
 
         Order updatedOrder = orderRepository.save(order);
         log.info("Da cap nhat don hang ID: {}", id);
