@@ -30,8 +30,9 @@ public class SecurityConfig {
             "/auth/logout",
             "/auth/forget-password",
             "/auth/verify-otp",
-            "/auth/reset-password",
-            "/carts/**",
+            "/auth/reset-password"
+    };
+    private final String[] WL = {
             "/products",
             "/products/**"
     };
@@ -46,7 +47,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers("/home").permitAll()
+                        .requestMatchers(HttpMethod.GET, WL).permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll() 
                         .anyRequest().authenticated());
         httpSecurity
